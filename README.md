@@ -91,4 +91,4 @@ More than one rule could be applied in each one iteration.
 
 ## Credits
 
-@copyright 2019
+@copyright 2022
