@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<example3:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:example3="http://www.example.org/example3_sirius"
+    xsi:schemaLocation="http://www.example.org/example3_sirius example3_Sirius.ecore">
+  <elements
+      name="first"
+      ghostSource="//@ghosts.0"
+      ghostTarget="//@ghosts.1"/>
+  <elements
+      name="second"
+      ghostSource="//@ghosts.1"
+      ghostTarget="//@ghosts.2"/>
+  <ghosts name="ghost1"/>
+  <ghosts name="ghost2"/>
+  <ghosts name="ghost3"/>
+</example3:Container>

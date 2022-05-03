@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<example3:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:example3="http://www.example.org/example3_domain"
+    xsi:schemaLocation="http://www.example.org/example3_domain example3_Domain.ecore">
+  <elements
+      name="first"
+      r="//@elements.1"/>
+  <elements
+      name="second"/>
+</example3:Container>

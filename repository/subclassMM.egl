@@ -1,0 +1,97 @@
+[*
+	Evolving MetaModel with Extract Subclass
+*]
+[% import "../engine/utility.eol"; %]
+import "../engine/utility.eol";
+@Generated("a.nonymous")
+/*
+[%=ruleName%]...
+Domain MM Package: [%=sourcePackageName%] -> Target MM Package: [%=destPackageName%]
+Domain MM: [%=sourceName%] -> Target MM: [%=destName%]
+*/
+
+// Local Variables
+pre {
+	var createdPkgs = new List;
+	
+	// **** Pre-evolving actions ****
+}
+
+// Evolution Rule
+rule [%=ruleName%] 
+	transform s: source!EClass
+	to t: dest!EClass {
+	
+	guard : s.getName() == "[%=sourceName%]"
+	
+	// **** Metaclass evolution ****
+	
+	// copy old superclass
+	t.name = s.name;
+	
+	// generate subclass
+	var subclass = new dest!EClass;
+	subclass <- s;
+	subclass.name = "[%=destName%]";	
+	
+	// add attributes
+	for (a: source!EAttribute in s.getEAttributes()) {
+		var a_new = a;	
+		a_new.eType = findDestType(a);
+		subclass.getEAttributes().add(a_new);
+	}
+	
+	// add references
+	for (r: source!EReference in s.getEReferences()) {
+		var r_new = r;						
+		r_new.eType = findDestType(r);
+		subclass.getEReferences().add(r_new);
+	}
+	
+	// add new reference in old superclass
+	var subref = new dest!EReference;
+	subref.name = "[%=subrefName%]";
+	subref.eType = subclass;
+	subref.containment = true;
+	t.getEReferences().add(subref);	
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(subclass);	
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+// EClass copy Rule
+rule EClassCopyRule 
+	transform s : source!EClass
+	to t : dest!EClass {
+	
+	guard : s.getName() <> "[%=sourceName%]"
+	
+	// copy old class	
+	t <- s;	
+	t.name = s.name;
+	
+	// copy attributes
+	for (a: source!EAttribute in s.getEAttributes()) {
+		var a_new = a;	
+		a_new.eType = findDestType(a);
+		t.getEAttributes().add(a_new);
+	}
+	
+	// copy references
+	for (r: source!EReference in s.getEReferences()) {
+		var r_new = r;						
+		r_new.eType = findDestType(r);
+		t.getEReferences().add(r_new);
+	}
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+// Final Operations
+post {
+	// **** Post-evolving actions ****
+	
+	"[%=sourceName%]".println("[%=ruleName%]: ");
+}

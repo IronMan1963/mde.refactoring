@@ -1,0 +1,7 @@
+[*
+	Create the list to execute Model de-Evolution
+*]
+[%for (p in paths) { %]
+import "[%=p%]";
+[% } %]
+@Generated("a.nonymous")

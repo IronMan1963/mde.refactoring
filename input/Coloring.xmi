@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domainMM_coloring_Evolved:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:domainMM_coloring_Evolved="http://www.example.org/domainMM_coloring_Evolved"
+    xsi:schemaLocation="http://www.example.org/domainMM_coloring_Evolved ../output/refactoredMM.ecore">
+  <elements>
+    <bulb/>
+    <bulb color="Red"/>
+  </elements>
+</domainMM_coloring_Evolved:Container>

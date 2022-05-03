@@ -1,0 +1,17 @@
+rule ExtractSubclass 
+	transform s : source!SUBElement
+	to t : dest!Element {
+		
+	// copy attrbutes value to domain Superclass
+	t.a = s.a;
+	
+	if (s.b == source!BEnum#LITERAL1) t.b = dest!BEnum#LITERAL1;
+	else if (s.b == source!BEnum#LITERAL2) t.b = dest!BEnum#LITERAL2; 
+}
+
+rule CopyRuleContainer
+	transform s : source!Container
+	to t : dest!Container {
+	
+	t <- s;
+}

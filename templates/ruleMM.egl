@@ -1,0 +1,76 @@
+[*
+	Evolving MetaModel with <rule name>
+*]
+[% import "../engine/utility.eol"; %]
+import "../engine/utility.eol";
+@Generated("a.nonymous")
+/*
+[%=ruleName%]...
+Domain MM Package: [%=sourcePackageName%] -> Target MM Package: [%=destPackageName%]
+Domain MM: [%=sourceName%] -> Target MM: [%=destName%]
+*/
+
+// Local Variables
+pre {
+	var createdPkgs = new List;
+	
+	// **** Pre-evolving actions ****
+	< ***************************** >
+	< your preliminary actions here >
+	< ***************************** >
+}
+
+// Evolution Rule
+rule [%=ruleName%] 
+	transform s: source!EClass
+	to t: dest!EClass {
+	
+	guard : s.getName() == "[%=sourceName%]"
+	
+	// **** Metaclass evolution ****
+	< ******************************** >
+	< your rule evolution actions here >
+	< ******************************** >	
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+// EClass copy Rule
+rule EClassCopyRule 
+	transform s : source!EClass
+	to t : dest!EClass {
+	
+	guard : s.getName() <> "[%=sourceName%]"
+	
+	// copy old class	
+	t <- s;	
+	t.name = s.name;
+	
+	// copy attributes
+	for (a: source!EAttribute in s.getEAttributes()) {
+		var a_new = a;	
+		a_new.eType = findDestType(a);
+		t.getEAttributes().add(a_new);
+	}
+	
+	// copy references
+	for (r: source!EReference in s.getEReferences()) {
+		var r_new = r;						
+		r_new.eType = findDestType(r);
+		t.getEReferences().add(r_new);
+	}
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+// Final Operations
+post {
+	// **** Post-evolving actions ****
+	< *********************** >
+	< your final actions here >
+	< *********************** >
+
+	"[%=sourceName%]".println("[%=ruleName%]: ");
+}

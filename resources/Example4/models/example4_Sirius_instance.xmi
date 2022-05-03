@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<example4_Sirius:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:example4_Sirius="http://www.example.org/example4_sirius"
+    xsi:schemaLocation="http://www.example.org/example4_sirius ../model/example4_Sirius.ecore">
+  <elements>
+    <a/>
+    <b/>
+  </elements>
+</example4_Sirius:Container>

@@ -1,0 +1,107 @@
+[*
+	Evolving MetaModel with Add Rotation Attribute
+*]
+[% import "../engine/utility.eol"; %]
+import "../engine/utility.eol";
+@Generated("a.nonymous")
+/*
+[%=ruleName%]...
+Domain MM Package: [%=sourcePackageName%] -> Target MM Package: [%=destPackageName%]
+Domain MM: [%=sourceName%] -> Target MM: [%=destName%]
+*/
+
+// Local Variables
+pre {	
+	var createdPkgs = new List;
+
+	// **** Pre-evolving actions ****
+	
+	// create Enum for rotation
+	var rotation = new dest!EEnum;
+	rotation.name = "[%=enumName%]";
+	var rotNum = 0;
+	// add rotation angles
+	for (n in Sequence[%=rotAngles%]) {
+		var rotAngle = new dest!EEnumLiteral;
+		rotAngle.name = n;
+		rotAngle.literal = n;
+		rotAngle.value = rotNum;
+		rotNum++;
+		rotation.getELiterals().add(rotAngle);
+	}
+}
+
+rule [%=ruleName%] 
+	transform s: source!EClass
+	to t: dest!EClass {	
+	
+	guard: s.getName() == "[%=sourceName%]"		
+	
+	// **** Metaclass evolution ****
+	
+	// copy old class	
+	t <- s;	
+	t.name = s.name;
+	
+	// copy attributes
+	for (a: source!EAttribute in s.getEAttributes()) {
+		var a_new = a;	
+		a_new.eType = findDestType(a);
+		t.getEAttributes().add(a_new);
+	}
+	
+	// copy references
+	for (r: source!EReference in s.getEReferences()) {
+		var r_new = r;						
+		r_new.eType = findDestType(r);
+		t.getEReferences().add(r_new);
+	}
+	
+	// add rotation attribute
+	var a_new = new dest!EAttribute;
+	a_new.name = "[%=rotrefName%]";	
+	a_new.eType = rotation;
+	t.getEAttributes().add(a_new);
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+// EClass copy Rule
+rule EClassCopyRule 
+	transform s : source!EClass
+	to t : dest!EClass {
+	
+	guard : s.getName() <> "[%=sourceName%]"
+	
+	// copy old class	
+	t <- s;	
+	t.name = s.name;
+	
+	// copy attributes
+	for (a: source!EAttribute in s.getEAttributes()) {
+		var a_new = a;	
+		a_new.eType = findDestType(a);
+		t.getEAttributes().add(a_new);
+	}
+	
+	// copy references
+	for (r: source!EReference in s.getEReferences()) {
+		var r_new = r;						
+		r_new.eType = findDestType(r);
+		t.getEReferences().add(r_new);
+	}
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+
+post {
+	// **** Post-evolving actions ****
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(rotation);
+	
+	"[%=sourceName%]".println("[%=ruleName%]: ");
+}

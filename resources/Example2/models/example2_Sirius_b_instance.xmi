@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<example2_Sirius_b:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:example2_Sirius_b="http://www.example.org/example2_sirius_b"
+    xsi:schemaLocation="http://www.example.org/example2_sirius_b ../model/example2_Sirius_b.ecore">
+  <elements
+      xsi:type="example2_Sirius_b:Spec1"/>
+  <elements
+      xsi:type="example2_Sirius_b:Spec3"/>
+</example2_Sirius_b:Container>

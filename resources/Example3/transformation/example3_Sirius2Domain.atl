@@ -1,0 +1,15 @@
+-- @path realDomain=file:/Users/francesco/workspaces/workspace_ermes_refactoring/Examples/resources/examples/Example3/metamodels/example3_Domain.ecore
+-- @path realSirius=file:/Users/francesco/workspaces/workspace_ermes_refactoring/Examples/resources/examples/Example3/metamodels/example3_Sirius.ecore
+-- @atlcompiler emftvm
+
+module example3_Sirius2Domain;
+create OUT : realDomain from IN : realSirius;
+
+rule rule0 {
+	from
+		s : realSirius!Element
+	to 
+		t : realDomain!Element (
+			
+		)
+}

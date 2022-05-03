@@ -1,0 +1,32 @@
+// Evoution Rule
+rule RotationElement
+	transform s : source!Element
+	to t : dest!Element {
+		
+	// copy attrbutes value to domain Superclass
+	t.a = s.a;
+	if (false) {}
+	else if (s.b == source!BEnum#LITERAL1) t.b = dest!BEnum#LITERAL1;
+	else if (s.b == source!BEnum#LITERAL2) t.b = dest!BEnum#LITERAL2;
+	
+	// copy references
+	
+}
+
+
+// Evoution Rule
+rule RotationContainer
+	transform s : source!Container
+	to t : dest!Container {
+		
+	// copy attrbutes value to domain Superclass
+	
+	// copy references
+	t.elements = System.user.chooseMany("Which elements contains " + t + "?", dest!Element.allInstances());
+	
+}
+
+// Final Operations
+post {
+	"Element".println("de-Rotation: ");
+}

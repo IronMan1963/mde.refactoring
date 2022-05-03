@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<example1_Domain:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:example1_Domain="http://www.example.org/example1_domain"
+    xsi:schemaLocation="http://www.example.org/example1_domain ../model/example1_Domain.ecore">
+  <elements
+      a="first"/>
+  <elements
+      a="second"
+      b="LITERAL2"/>
+  <elements
+      a="third"/>
+</example1_Domain:Container>

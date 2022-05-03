@@ -1,0 +1,308 @@
+import "../engine/utility.eol";
+/***************************
+
+	Implemented Rules
+
+****************************/
+operation SUBCLASS(): String {return "subclass";}
+operation ROTATION(): String {return "rotation";}
+operation LABEL(): String {return "label";}
+operation SEGMENT(): String {return "segment";}
+operation COLORING(): String {return "coloring";}
+//operation RULE(): String {return "rule-name";}
+/*
+declare rules name - it must coincide with filename form in the catalogue
+"rule-name".egl		for model de-evolution
+"rule-nameMM".egl	for memtamodel evolution
+*/
+
+/***************************
+
+	Generate Rules parameters
+
+****************************/
+operation getMMParams(r: String, s: EClass) {
+	switch (r) {
+		case SUBCLASS(): return Map {
+			"ruleName" = SUBCLASS().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = getDestPkgName(s.getEPackage().name),
+			"sourceName" = s.getName(),
+			"destName" = "SUB" + s.getName(),
+			"subrefName" = "z"
+		};
+		case ROTATION(): return Map{
+			"ruleName" = ROTATION().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = getDestPkgName(s.getEPackage().name),
+			"sourceName" = s.getName(),
+			"destName" = s.getName(),
+			"enumName" = "CardinalPoint",
+			"rotAngles" = "{\"NORTH\", \"EAST\", \"SOUTH\", \"WEST\"}",
+			"rotrefName" = "direction"
+		};
+		case LABEL(): return Map{
+			"ruleName" = ROTATION().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = getDestPkgName(s.getEPackage().name),
+			"sourceName" = s.getName(),
+			"destName" = s.getName(),
+			"className" = "Label",
+			"labelrefName" = "label",
+			"labelattrValue" = "value"
+		};
+		case SEGMENT(): return Map{
+			"ruleName" = ROTATION().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = getDestPkgName(s.getEPackage().name),
+			"sourceName" = s.getName(),
+			"destName" = s.getName(),
+			"refName" = "segment",
+			"sourceClassName" = "Source",
+			"targetClassName" = "Target",
+			"sourcerefName" = "source",
+			"targetrefName" = "target"
+		};
+		case COLORING(): return Map{
+			"ruleName" = ROTATION().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = getDestPkgName(s.getEPackage().name),
+			"sourceName" = s.getName(),
+			"destName" = s.getName(),
+			"ignoreColors" = "{\"leftBulb\", \"rightBulb\"}",
+			"className" = "Bulb",			
+			"colorrefName" = "bulb",
+			"colorattrValue" = "color"
+		};
+		/*
+		case RULE(): return Map {
+			"ruleName" = RULE().firstToUpperCase(),
+			"sourcePackageName" = s.getEPackage().name,
+			"destPackageName" = s.getEPackage().name + "_Evolved", // Change if necessary
+			"sourceName" = s.getName(),
+			"destName" = <dest-metaclass-name>
+			<parameters list>
+		};
+		*/
+		default: return Map {};
+	}
+}
+operation getParams(r: String, s: EClass) {
+	switch (r) {
+		case SUBCLASS(): return Map{
+			"ruleName" = SUBCLASS().firstToUpperCase(),		
+			"destName" = s.getName(),
+			"sourceName" = "SUB" + s.getName()
+		};
+		case ROTATION(): return Map{	
+			"ruleName" = ROTATION().firstToUpperCase(),	
+			"destName" = s.getName(),
+			"sourceName" = s.getName()
+		};
+		case LABEL(): return Map{	
+			"ruleName" = LABEL().firstToUpperCase(),	
+			"destName" = s.getName(),
+			"sourceName" = s.getName(),
+			"labelrefName" = "label"
+		};
+		case SEGMENT(): return Map{	
+			"ruleName" = LABEL().firstToUpperCase(),	
+			"destName" = s.getName(),
+			"sourceName" = s.getName(),
+			"labelrefName" = "label"
+		};
+		case COLORING(): return Map{	
+			"ruleName" = LABEL().firstToUpperCase(),	
+			"destName" = s.getName(),
+			"sourceName" = s.getName(),
+			"colortypeName" = "Color",			
+			"colorrefName" = "bulb",
+			"colorattrValue" = "color"
+		};
+		/*
+		case RULE(): return Map {
+			"ruleName" = RULE().firstToUpperCase(),	
+			"destName" = s.getName(),
+			"sourceName" = <dest-metaclass-name>
+			<parameters list>
+		};
+		*/
+		default: return Map {};
+	}
+}
+
+/***************************
+
+	Startup setup procedure
+
+****************************/
+pre {
+	// Project Paths
+	var cataloguePath : String = "../repository/";
+	var outputPath : String = "../output/";
+	var enginePath: String = "../engine/";
+	
+	// Generated ETL
+	var trasfo_metamodel : List<String> = new List;
+	var trasfo_model: List<String> = new List;
+	
+	// Implemented Rules
+	var impl_rules : Sequence = Sequence {
+		SUBCLASS(),
+		ROTATION(),
+		LABEL(),
+		SEGMENT(),	
+		COLORING()
+		// expand this list with new rules added -> ,RULE()
+	};
+	
+	// Mapping Metaclasses
+	var classes = source!EClass.allInstances();
+	
+	var mapping_Classes : Map<EClass, String>;
+	for (r in impl_rules) {
+		var l : List<EClass> = System.user.chooseMany("Apply " + r.firstToUpperCase() + " Evolution to:", classes, new List);
+		classes = filterInstances(classes, l);		
+		for (c in l) {
+			mapping_Classes.put(c, r);
+		}						
+	}
+	
+	// Start!
+	"Generating...".println();	
+}
+
+/***************************
+
+	System rules
+
+****************************/
+
+/* Commons Model */
+/* Commons Metamodel */
+rule CommonsTransformMM 
+	transform s: source!EPackage {
+	parameters : Map{
+		"sourcePackageName" = s.name,
+		"destPackageName" = getDestPkgName(s.name),
+		"destPackagePrefix" = getDestPkgName(s.nsPrefix),
+		"destPackageURI" = getDestPkgName(s.nsURI)		
+	}		
+	template : cataloguePath + "system_commonsMM.egl"
+	target : recordTrasfoMM(outputPath + "system_commonsMM_" + s.getName() + ".etl")
+}
+
+/***************************
+
+	Evolving rules
+
+****************************/
+
+/* Metamodel Evolution */
+rule MetamodelTransform 
+	transform s : source!EClass {
+	
+	guard: mapping_Classes.containsKey(s)
+
+	template : getMMTemplateFile(mapping_Classes.get(s))
+
+	parameters : getMMParams(mapping_Classes.get(s), s)
+
+	target : getMMTargetFile(mapping_Classes.get(s), s)
+}
+
+/* Models de-evolution */
+rule ModelTransform 
+	transform s : source!EClass {
+	
+	guard: mapping_Classes.containsKey(s)
+
+	template : getTemplateFile(mapping_Classes.get(s))
+
+	parameters : getParams(mapping_Classes.get(s), s)
+
+	target : getTargetFile(mapping_Classes.get(s), s)
+}
+
+/***************************
+
+	Final setup procedure
+
+****************************/
+post {
+	TemplateFactory.setTemplateRoot(enginePath);
+	TemplateFactory.setOutputRoot(outputPath);
+	
+	// Applying all Metamodel evolution
+	var metamodels = TemplateFactory.load("metamodel.egl");
+	metamodels.populate("paths", trasfo_metamodel);
+	metamodels.generate("evolveMetamodel.etl");
+	
+	// Applying all Model de-evolution
+	var models = TemplateFactory.load("model.egl");	
+	models.populate("paths", trasfo_model);
+	models.generate("de_evolveModel.etl");	
+	
+	// Finish!
+	"Completed".println();
+}
+
+
+/***************************
+
+	Get Transformation template
+
+****************************/
+operation getTemplateFile(r: String): String {
+	var result = "";
+	for (t in impl_rules) {
+		if (t == r) result = cataloguePath + r + ".egl";
+	}
+	return result;
+}
+operation getMMTemplateFile(r: String): String {
+	var result = "";
+	for (t in impl_rules) {
+		if (t == r) result = cataloguePath + r + "MM.egl";
+	}
+	return result;	
+}
+
+/***************************
+
+	Get Transformation target
+
+****************************/
+operation getTargetFile(r: String, s: EClass): String {
+	var result = "";
+	for (t in impl_rules) {
+		if (t == r) result = outputPath + r + "_" + s.getName() + ".etl";
+	}
+	return recordTrasfo(result);
+}
+operation getMMTargetFile(r: String, s: EClass): String {
+	var result = "";
+	for (t in impl_rules) {
+		if (t == r) result = outputPath + r + "MM_" + s.getName() + ".etl";
+	}
+	return recordTrasfoMM(result);	
+}
+
+/***************************
+
+	Helper methods
+
+****************************/
+operation recordTrasfoMM (path: String) : String {
+	trasfo_metamodel.add(path);
+	return path;
+}
+
+operation recordTrasfo (path: String) : String {
+	trasfo_model.add(path);
+	return path;
+}
+
+operation getDestPkgName (name: String) : String {
+	return name + "_Evolved";
+}

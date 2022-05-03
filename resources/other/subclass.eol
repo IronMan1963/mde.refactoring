@@ -1,0 +1,54 @@
+/*
+	Check exixts Extracted Subclass
+*/
+@cached
+operation existsExtractedSubclass (input: source!EClass) : Boolean {
+		return returnExtractedSubclass(input) <> null;
+}
+
+/*
+	Return dest class Extracted Subclass
+*/
+@cached
+operation returnExtractedSubclass (input: source!EClass) : dest!EClass {
+	for (output: dest!EClass in dest!EClass.allInstances()) {
+		if (subclassMatchRule(input, output)) {
+			return output;
+		}
+	}
+	return null;	
+}
+
+/*
+	This is the rule to capture Extracted Subclasses 
+*/
+@cached
+operation subclassMatchRule(input: source!EClass, output: dest!EClass) : Boolean {	
+	
+	// [FAIL] if does not exixts some IN attribute in the OUT metaclass	
+	for (a: source!EAttribute in input.eContents()) {
+		if (not output.eContents()->exists(e|e.getName().equals(a.getName()))) {
+			return false;
+		}
+	}
+	
+	// [FAIL] if does not exixts some IN reference in the OUT metaclass
+	for (a: source!EReference in input.eContents()) {
+		if (not output.eContents()->exists(e|e.getName().equals(a.getName()))) {
+			return false;
+		}
+	}
+	
+	// [SUCCESS] if the IN metaclass is in the reference of the OUT metaclass
+	// and it's a 0-1 reference
+	for (e: dest!EClass in output.eContainer().eContents()) {
+		for (r: dest!EReference in e.eContents()) {			
+			if ((r.lowerBound == 0) and (r.upperBound == 1) and
+			e.getName().equals(input.getName()) and 
+			r.eReferenceType.getName().equals(output.getName())) return true;			
+		}
+	}
+	
+	// [FAIL] elsewhere
+	return false;
+}

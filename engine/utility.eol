@@ -1,0 +1,61 @@
+/*
+	Filter chosen instances
+*/
+// ** will be used when multiple type of rule could be applied in one iteration **
+/* 
+operation filterInstances(all: List<EClass>, chosen: List<EClass>) : List<EClass> {
+	var res = new List<EClass>;
+	for (c in all) {
+		if (not chosen.includes(c)) {
+			res.add(c);
+		}
+	}
+	return res;
+}*/
+operation filterInstances(all: List<EClass>, chosen: List<EClass>) : List<EClass> {
+	if (chosen.isEmpty()) return all;
+	else return new List;
+}
+
+/*
+	Check if an attribute is enumeration
+*/
+operation Any isEnumeration() : Boolean {
+	for (e: source!EEnum in source!EEnum.allInstances()) {
+		if (self.name == e.name) {			
+			return true;			
+		} 
+	}
+	return false;
+}
+
+/*
+	Find corresponding destination type
+*/
+operation findDestType(oldtype: Any): dest!EClassifier {
+	// user-defined
+	for (c: dest!EClassifier in dest!EClassifier.allInstances()) {
+		if (c.name == oldtype.eType.name) return c;
+	}	
+	// primitives
+	return oldtype.eType;	
+}
+
+/*
+	Find corresponding destination package
+*/
+operation findDestPackage(destPkgName: String): dest!EPackage {
+	// metamodels
+	for (p: dest!EPackage in dest!EPackage.allInstances()) {
+		if (p.name == destPkgName) return p;
+	}
+	// created
+	for (p: dest!EPackage in createdPkgs) {
+		if (p.name == destPkgName) return p;
+	}
+	// new
+	var pkg = new dest!EPackage;
+	pkg.name = destPkgName;
+	createdPkgs.add(pkg);
+	return pkg;
+}

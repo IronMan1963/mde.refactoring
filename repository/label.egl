@@ -1,0 +1,89 @@
+[*
+	De-Evolving Models with Label Class Extraction
+*]
+[% import "../engine/utility.eol"; %]
+import "../engine/utility.eol";
+@Generated("a.nonymous")
+/*
+[%=ruleName%]...
+Domain Model: [%=destName%] <- Target Model: [%=sourceName%]
+*/
+
+// Evolution Rule
+[* Firstly the Target class*]
+[% for (c in source!EClass.all) { %]
+[% if (c.name == destName) { %]
+rule [%=ruleName%][%=c.name%] 
+	transform s : source![%=sourceName%]
+	to t : dest![%=destName%] {
+	
+	// **** de-Evolution Model Classes ****
+	
+	// copy attrbutes value to domain Superclass
+	[% for (a in c.getEAttributes()) { %]
+	[% if (a.getName() <> labelrefName) {%]
+	[% if (not a.getEType().isEnumeration()) { %]
+	t.[%=a.name%] = s.[%=a.name%];
+	[% } else { %]
+	if (false) {}
+	[% for (l in a.getEType().getELiterals()) {%]
+	else if (s.[%=a.name%] == source![%=a.getEType().name%]#[%=l.name%]) t.[%=a.name%] = dest![%=a.getEType().name%]#[%=l.name%];
+	[% } %]
+	[% } %]
+	[% } %]
+	[% } %]
+	
+	// copy references
+	[%for (r in c.getEReferences()) { %]
+	[%if (r.upperBound == -1) {%]
+	t.[%=r.name%] = System.user.chooseMany("Which elements contains " + t + " in [%=r.name%]?", dest![%=r.getEType().name%].allInstances());
+	[% } else {%]
+	t.[%=r.name%] = System.user.choose("Which elements contains " + t + " in [%=r.name%]?", dest![%=r.getEType().name%].allInstances());
+	[% } %]
+	[% } %]
+	
+	// copy value of the label in the original attribute
+	t.[%=labelrefName%]	= s.[%=labelrefName%].value;
+}
+
+[% } %]
+[% } %]
+// Copy Rules
+[* Then all other copy rule classes *]
+[% for (c in source!EClass.all) { %]
+[% if (c.name <> destName) { %]
+rule CopyRule[%=c.name%]
+	transform s : source![%=c.name%]
+	to t : dest![%=c.name%] {
+		
+	// copy attrbutes value to domain Superclass
+	[% for (a in c.getEAttributes()) { %]
+	[% if (not a.getEType().isEnumeration()) { %]
+	t.[%=a.name%] = s.[%=a.name%];
+	[% } else { %]
+	if (false) {}
+	[% for (l in a.getEType().getELiterals()) {%]
+	else if (s.[%=a.name%] == source![%=a.getEType().name%]#[%=l.name%]) t.[%=a.name%] = dest![%=a.getEType().name%]#[%=l.name%];
+	[% } %]
+	[% } %]
+	[% } %]
+	
+	// copy references
+	[%for (r in c.getEReferences()) { %]
+	[%if (r.upperBound == -1) {%]
+	t.[%=r.name%] = System.user.chooseMany("Which elements contains " + t + " in [%=r.name%]?", dest![%=r.getEType().name%].allInstances());
+	[% } else {%]
+	t.[%=r.name%] = System.user.choose("Which elements contains " + t + " in [%=r.name%]?", dest![%=r.getEType().name%].allInstances());
+	[% } %]
+	[% } %]
+	
+}
+
+[% } %]
+[% } %]
+// Final Operations
+post {
+	// **** Post de-evolution actions ****	
+	
+	"[%=sourceName%]".println("de-[%=ruleName%]: ");
+}

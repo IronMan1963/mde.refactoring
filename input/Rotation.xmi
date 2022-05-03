@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domainMM_rotation_Evolved:Container
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:domainMM_rotation_Evolved="http://www.example.org/domainMM_rotation_Evolved"
+    xsi:schemaLocation="http://www.example.org/domainMM_rotation_Evolved ../output/refactoredMM.ecore">
+  <elements
+      a="elm1"/>
+  <elements
+      a="elm2"
+      b="LITERAL2"
+      direction="WEST"/>
+</domainMM_rotation_Evolved:Container>

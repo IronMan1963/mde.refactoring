@@ -1,0 +1,55 @@
+[*
+	Evolving MetaModel - Commons
+*]
+[% import "../engine/utility.eol"; %]
+import "../engine/utility.eol";
+@Generated("a.nonymous")
+/*
+Metamodel Commons evolving...
+Domain MM Package: [%=sourcePackageName%] -> Target MM Package: [%=destPackageName%]
+*/
+
+// Local Variables
+pre {
+	var createdPkgs = new List;	
+}
+
+// EPackage copy Rule
+rule PackageCopyRule 
+	transform s : source!EPackage
+	to t : dest!EPackage {
+	
+	guard : s.getName() == "[%=sourcePackageName%]"
+	
+	// copy old package
+	t <- s;
+	t.name = "[%=destPackageName%]";
+	t.nsURI = "[%=destPackageURI%]";
+	t.nsPrefix = "[%=destPackagePrefix%]";	
+}
+
+// EEnum copy Rule
+rule EnumCopyRule 
+	transform s : source!EEnum
+	to t : dest!EEnum {
+	
+	// copy old enumeration
+	t <- s;
+	t.name = s.name;
+	
+	// Copy literals
+	for (l: source!EEnumLiteral in s.getELiterals()) {
+		var l_new = new dest!EEnumLiteral;
+		l_new.name = l.name;
+		l_new.literal = l.literal;
+		l_new.value = l.value;
+		t.getELiterals().add(l_new);
+	}
+	
+	// append in package
+	findDestPackage("[%=destPackageName%]").getEClassifiers().add(t);
+}
+
+post {
+	"Commons DONE".println();
+}
